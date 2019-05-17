@@ -1,0 +1,5 @@
+tout dans 1 seul fichier ou dans des fichier separer ?
+comment appeler des doccument dans un script 
+comment gerer les chiffre
+comment gerer les log sd
+
