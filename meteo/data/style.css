@@ -1,0 +1,55 @@
+html {
+    font-family: Helvetica;
+    display: inline-block;
+    margin: 0px auto;
+    text-align: center;
+    color: #ff0005;
+    background-color: #363628;
+}
+
+body {
+    margin-top: 50px;
+}
+
+h1 {
+    color: #000000;
+    margin: 50px auto 30px;
+}
+
+.stroke{
+    color: rgb(0, 0, 0);
+    text-shadow:
+    -1px -1px 0 rgb(255, 255, 255),
+    1px -1px 0 rgb(255, 255, 255),
+    -1px 1px 0 rgb(255, 255, 255),
+    1px 1px 0 rgb(255, 255, 255);  
+
+}
+
+.valid{
+    transition: 1s;
+    border-radius: 12px;
+    background-color: turquoise;
+    color: blueviolet;
+}
+
+.valid:hover {
+    border-radius: 10px;
+    color: #04ffff;
+    background-color: #632d96;
+}
+
+#local {
+    background-color: #363628;
+}
+
+#prevision {
+    background-color: #363628;
+    font-size: 30;
+    color: #3d12aa;
+    border-radius: 50%;
+}
+
+#update {
+    background-color: white;
+}

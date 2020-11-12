@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="style.css">
+<title>ESP8266 Weather Station</title>
+<script type="text/javascript" src="countries.js"></script>
+<head>
+    
+</head>
+
+<body>
+    <div id="local">
+        <h1><b class="stroke">ESP8266 Weather Station</b></h1>
+        <p>Temperature: "
+            temperature&deg;C"</p>
+        <p>Humidity: "
+            humidity"
+        <p>Pression: "
+            pressure"
+        </p>
+    </div>
+    <div id="prevision">
+            <select id="country" name="country">Select Country: </select> 
+        </br>
+        </br>
+            <select name="state" id="state">Select State: </select>
+        <br>
+            <button class="valid" type="button">valid</button>
+    </div>
+</body>
+
+<script language="javascript">
+	populateCountries("country", "state");
+</script>
+
+</html>

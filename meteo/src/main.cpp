@@ -7,18 +7,22 @@
 #include <Adafruit_Sensor.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPUpdateServer.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
 #include <WiFiUdp.h>
 #include <NTPClient.h>
 #include <ArduinoOTA.h>
 #include <LittleFS.h>
+#include <FS.h>
+#include <JSON.h>
 
 //Wifi connection & server
-#define SSID "FREEBOX_SUZANNE_JG" //Wifi SSID 
-#define PASS "llebant-litati-forti1-endum" //Wifi Password
-const long utcOffsetInSeconds = 7200 ;
+#define SSID "Redmi Note 9" //Wifi SSID 
+#define PASS "plus simple" //Wifi Password
 ESP8266WebServer server(80);
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+NTPClient timeClient(ntpUDP, "fr.pool.ntp.org");
 
 //Screen setup
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -30,8 +34,33 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 #define DHTTYPE 11
 DHT dht(DHTPIN, DHTTYPE);
 
+// api setup
+String jsonweather;
+String city = "Reims";
+String country = "FR";
+String weather_KEY = "3aeca48a574d432bbca92351a2c9a270"; // API key for weatherbit
+String weather_server = "http://api.weatherbit.io/v2.0/current?city="+city+"&country="+country+"&key="+weather_KEY;
+
+void setup() //Setup loop
+{
+	Wire.begin(2,14);
+	Serial.begin(9600);
+	dht.begin();
+	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  	delay(2000);
+  	display.setFont();
+  	display.setTextColor(WHITE);
+	delay(2000);
+	LittleFS.begin();
+	HTTPClient http;
+
+}
+
 void OTA() //Allow update from network
 {
+	/*server.serveStatic("/update", LittleFS, "/update.html");
+	server.on(/update);JSON 
+	
 	ArduinoOTA.handle();
 	ArduinoOTA.setPort(8266);
 	ArduinoOTA.setHostname("meteo_Station");
@@ -58,7 +87,7 @@ void OTA() //Allow update from network
     else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
     else if (error == OTA_END_ERROR) Serial.println("End Failed");
   });
-  ArduinoOTA.begin();
+  ArduinoOTA.begin();*/
 }
 
 void NTP() //Get Hour from NTP
@@ -85,7 +114,7 @@ void WIFI() //Connect to network
 	display.display();
 	Serial.print("Connecting...");
 	WiFi.begin(SSID, PASS);
-	delay(10000);
+	delay(5000);
   }
   display.clearDisplay();
   display.setTextSize(2);
@@ -98,15 +127,13 @@ void WIFI() //Connect to network
 
 float Temp() //Get temperature 
 {
- 	float Temp = 0;
- 	Temp = dht.readTemperature();
+ 	float Temp = dht.readTemperature();
 	return Temp;
 }
 
 float Humi() //Get Humidity
 {
-	float Hum = 0;
-	Hum = dht.readHumidity();
+	float Hum = dht.readHumidity();
 	return Hum;
 }
 
@@ -126,64 +153,28 @@ void Local_temp() //Show on Oled screen local temp and hum
 	delay(2500);
 }
 
-String SendHTML(float Temperature,float humidity)
-{
-	String ptr = "<!DOCTYPE html> <html>\n";
-	ptr +="<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-	ptr +="<title>ESP8266 Weather Station</title>\n";
-	ptr +="<style>{html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-	ptr +="body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;}\n";
-	ptr +="p {font-size: 24px;color: #444444;margin-bottom: 10px;}}\n";
-	ptr +="</style>\n";
-	ptr +="</head>\n";
-	ptr +="<body>\n";
-	ptr +="<div id=\"webpage\">\n";
-	ptr +="<h1>ESP8266 Weather Station</h1>\n";
-	ptr +="<p>Temperature: ";
-	ptr +=Temperature;
-	ptr +="&deg;C</p>";
-	ptr +="<p>Humidity: ";
-	ptr +=humidity;
-	ptr +="</div>\n";
-	ptr +="</body>\n";
-	ptr +="</html>\n";
-	return ptr;
-}
-
-void handleRoot()
-{
-	server.send(200, "text/plain", SendHTML(Temp(), Humi
-()));
-}
-
 void http() //WebServer 
 {
-	server.on("/", handleRoot);
+	server.serveStatic("/", LittleFS, "/index.html");
+	/*	server.serveStatic("/", LittleFS, "/style.css");
+	server.serveStatic("/", LittleFS, "/script.js");*/
+	server.handleClient();
 	server.begin();
-}
-
-void setup() //Setup loop
-{
-	Wire.begin(2,14);
-	Serial.begin(9600);
-	dht.begin();
-	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  	delay(2000);
-  	display.setFont();
-  	display.setTextColor(WHITE);
-	delay(2000);
-	LittleFS.begin();
-	http();
 }
 
 void loop() 
 {
-	OTA();
 	WIFI();
-	OTA();
 	NTP();
-	OTA();
   	Local_temp();
-	OTA();
-	server.handleClient();
+	http();
+}
+
+void API() //API key 
+{
+	/*JSONVar weather =  http.begin(weather_server.c_str());
+	weather = JSON.parse(weather);
+	Serial.print(weather["data"]["temp"]);
+	Serial.print(weather["data"]["pres"]);
+*/
 }
